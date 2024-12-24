@@ -1,4 +1,4 @@
-import ResumeBuilder from "../components/ResumeBuilder";
+import ResumeBuilder from "../components/resumeBuilder/ResumeBuilder";
 // import ResumeList from "../components/ResumeList";
 
 function App() {
