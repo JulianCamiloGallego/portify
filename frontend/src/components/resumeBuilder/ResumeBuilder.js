@@ -8,6 +8,8 @@ import Skill from "../sections/skill";
 import Certificate from "../sections/certificate";
 import Language from "../sections/language";
 import Award from "../sections/awards";
+import { PDFViewer } from "@react-pdf/renderer";
+import MyResumePdf from "./myResumePdf";
 
 const ResumeBuilder = () => {
   const [resume, setResume] = useState({
@@ -85,6 +87,15 @@ const ResumeBuilder = () => {
     });
   };
 
+  const handleSaveResume = () => {
+    setSelectedSections([]);
+    setResume({
+      title: "",
+      sections: {},
+      format: "json",
+    });
+  };
+
   const getSectionFieldsData = (section) => {
     return resume.sections[section];
   };
@@ -154,12 +165,21 @@ const ResumeBuilder = () => {
           />
         )}
       </div>
-      <h2>Resume preview</h2>
-      <pre style={{ whiteSpace: "pre-wrap" }}>
-        {JSON.stringify(resume, null, 2)}
-      </pre>
+      <h2>PDF Preview</h2>
+      {/** PDFViewer seems to be breaking on state update */}
+      {typeof window !== "undefined" && (
+        <PDFViewer style={{ width: "100%", height: "700px" }}>
+          <MyResumePdf resume={resume} />
+        </PDFViewer>
+      )}
+      <button onClick={() => handleSaveResume()}>Save</button>
     </div>
   );
 };
+
+// <h2>Resume preview</h2>
+// <pre style={{ whiteSpace: "pre-wrap" }}>
+// {JSON.stringify(resume, null, 2)}
+// </pre>
 
 export default ResumeBuilder;
