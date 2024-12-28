@@ -10,13 +10,19 @@ import Language from "../sections/language";
 import Award from "../sections/awards";
 import { PDFViewer } from "@react-pdf/renderer";
 import MyResumePdf from "./myResumePdf";
+import { useDispatch } from "react-redux";
+import { addResume } from "../../redux/slices/resumeSlice";
 
 const ResumeBuilder = () => {
+  const [stateKey, setStateKey] = useState(0);
+
   const [resume, setResume] = useState({
     title: "",
     sections: {},
     format: "json",
   });
+
+  const dispatch = useDispatch();
 
   const sectionTypes = [
     "personalDetails",
@@ -88,12 +94,17 @@ const ResumeBuilder = () => {
   };
 
   const handleSaveResume = () => {
+    dispatch(addResume(resume));
+
     setSelectedSections([]);
     setResume({
       title: "",
       sections: {},
       format: "json",
     });
+
+    // ! -> work around to react-pdf qo is undefined bug
+    setStateKey((prev) => prev + 1);
   };
 
   const getSectionFieldsData = (section) => {
@@ -101,7 +112,7 @@ const ResumeBuilder = () => {
   };
 
   return (
-    <div>
+    <div key={stateKey}>
       <h1>Resume Builder</h1>
       <div>
         {sectionTypes.map((section, index) => (
@@ -169,17 +180,12 @@ const ResumeBuilder = () => {
       {/** PDFViewer seems to be breaking on state update */}
       {typeof window !== "undefined" && (
         <PDFViewer style={{ width: "100%", height: "700px" }}>
-          <MyResumePdf resume={resume} />
+          <MyResumePdf resume={resume} sections={selectedSections} />
         </PDFViewer>
       )}
       <button onClick={() => handleSaveResume()}>Save</button>
     </div>
   );
 };
-
-// <h2>Resume preview</h2>
-// <pre style={{ whiteSpace: "pre-wrap" }}>
-// {JSON.stringify(resume, null, 2)}
-// </pre>
 
 export default ResumeBuilder;

@@ -11,9 +11,20 @@ const initialState = {
 export const fetchResumes = createAsyncThunk(
   "resume/fetchResumes",
   async () => {
-    console.log("hit");
     const res = await axios.get(`${API_BASE_URL}/resume`);
-    console.log(res);
+    return res.data;
+  }
+);
+
+export const addResume = createAsyncThunk(
+  "resume/addResume",
+  async (resume) => {
+    const { title, sections, format } = resume;
+
+    const content = JSON.stringify(sections);
+    const data = { title, content, format };
+
+    const res = await axios.post(`${API_BASE_URL}/resume`, data);
     return res.data;
   }
 );
@@ -21,13 +32,10 @@ export const fetchResumes = createAsyncThunk(
 export const resumeSlice = createSlice({
   name: "resume",
   initialState,
-  reducers: {
-    addResume: (state, action) => {
-      state.resumes = [...state.resumes, action.payload];
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
+      // fethResumes
       .addCase(fetchResumes.pending, (state) => {
         state.status = "loading";
       })
@@ -38,10 +46,20 @@ export const resumeSlice = createSlice({
       .addCase(fetchResumes.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+      })
+      // addResume
+      .addCase(addResume.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(addResume.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.resumes.push(action.payload);
+      })
+      .addCase(addResume.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
       });
   },
 });
-
-export const { addResume } = resumeSlice.actions;
 
 export default resumeSlice.reducer;
